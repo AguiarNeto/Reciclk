@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous"> -->
+    <title>Reciclk - Cadastro</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <style>
+        #campo-cnpj, #campo-cpf {
+            display: none;
+        }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div class="header">
+        <img src="" alt=""> <!-- Logo ou ícone do site -->
+        <p id="login">
+          <a href="/src/main/resources/static/login.html">Entrar</a>
+        </p>
+        <h1>Seja bem-vindo a reciclk!</h1>
+        <h3>Como é sua primeira vez, preencha com suas informações:</h3>
+      </div>
+
+      <div class="body" id="body_responsivo">
+        <form id="form-perfil" onsubmit="return validarFormulario()">
+          <label for="text">Nome completo:</label>
+          <input type="text" name="nome" id="nome" required/>
+
+          <br /><br />
+
+          <label for="email">E-mail:</label>
+          <input type="email" name="email" id="email" required/>
+
+          <br /><br />
+
+          <label for="senha">Senha:</label>
+          <input type="password" name="senha" id="senha" required/>
+
+          <br />
+
+          <p>O que você é:</p>
+          <input
+            type="checkbox"
+            name="perfil"
+            id="empresa"
+            value="Empresa"
+            onchange="atualizarCampos()"
+          />
+          <label for="empresa">Empresa</label>
+
+          <br />
+
+          <input
+            type="checkbox"
+            name="perfil"
+            id="vendedor"
+            value="Vendedor"
+            onchange="atualizarCampos()"
+          />
+          <label for="vendedor">Vendedor</label>
+
+          <br />
+
+          <input
+            type="checkbox"
+            name="perfil"
+            id="cliente"
+            value="Cliente"
+            onchange="atualizarCampos()"
+          />
+          <label for="cliente">Cliente/visitante</label>
+
+          <div id="campo-cnpj">
+            <label for="cnpj">CNPJ:</label>
+            <input
+              type="text"
+              id="cnpj"
+              name="cnpj"
+              placeholder="00.000.000/0001-00"
+            />
+          </div>
+
+          <div id="campo-cpf">
+            <label for="cpf">CPF:</label>
+            <input
+              type="text"
+              name="cpf"
+              id="cpf"
+              placeholder="000.000.000-00"
+            />
+          </div>
+
+          <br><br>
+
+          <input type="submit" value="Cadastrar" />
+        </form>
+      </div>
+      <div class="footer">
+        <p>Reciclk - Todos os direitos reservados &copy; <script>
+          document.write(new Date().getFullYear());
+        </script></p>
+        <a href=""> <!-- Link para a página inicial ou contato -->
+          <img src="" alt=""> <!-- Logo ou ícone do site -->
+        </a>
+    </div>
+  </body>
+
+  <script>
+    function atualizarCampos() {
+      const isEmpresa = document.getElementById("empresa").checked;
+      const isVendedor = document.getElementById("vendedor").checked;
+
+      document.getElementById("campo-cnpj").style.display = isEmpresa
+        ? "block"
+        : "none";
+      document.getElementById("campo-cpf").style.display = isVendedor
+        ? "block"
+        : "none";
+    }
+
+    function validarFormulario() {
+      const isEmpresa = document.getElementById('empresa').checked;
+      const isVendedor = document.getElementById('vendedor').checked;
+      const cnpj = document.getElementById('cnpj').value;
+      const cpf = document.getElementById('cpf').value;
+
+      if (isEmpresa && !validarCNPJ(cnpj)) {
+        alert("CNPJ inválido ou vazio. Verifique o número.");
+        return false;
+      }
+
+      if (isVendedor && !validarCPF(cpf)) {
+        alert("CPF inválido ou vazio. Verifique o número.");
+        return false;
+      }
+
+      alert("Enviado com sucesso!");
+      return true;
+    }
+
+    // Validação de CNPJ
+    function validarCNPJ(cnpj) {
+      cnpj = cnpj.replace(/[^\d]+/g, '');
+      if (cnpj.length !== 14) return false;
+
+      // Elimina CNPJs inválidos conhecidos
+      if (/^(\d)\1+$/.test(cnpj)) return false;
+
+      let t = cnpj.length - 2,
+        d = cnpj.substring(t),
+        d1 = parseInt(d.charAt(0)),
+        d2 = parseInt(d.charAt(1)),
+        calc = x => {
+          let n = cnpj.substring(0, x),
+            y = x - 7,
+            s = 0,
+            r = 0;
+
+          for (let i = x; i >= 1; i--) {
+            s += n.charAt(x - i) * y--;
+            if (y < 2) y = 9;
+          }
+
+          r = 11 - s % 11;
+          return r > 9 ? 0 : r;
+        };
+
+      return calc(t) === d1 && calc(t + 1) === d2;
+    }
+
+    // Validação de CPF
+    function validarCPF(cpf) {
+      cpf = cpf.replace(/[^\d]+/g, '');
+      if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+
+      let soma = 0;
+      for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
+      let resto = 11 - (soma % 11);
+      if (resto === 10 || resto === 11) resto = 0;
+      if (resto !== parseInt(cpf.charAt(9))) return false;
+
+      soma = 0;
+      for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
+      resto = 11 - (soma % 11);
+      if (resto === 10 || resto === 11) resto = 0;
+
+      return resto === parseInt(cpf.charAt(10));
+    }
+  </script>
+</html>
